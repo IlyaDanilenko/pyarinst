@@ -23,18 +23,18 @@ class ArinstDevice:
         msg = b''
         while msg == b'':
             msg = self.__serial.read_all()
-        return str(msg, 'ascii')
+        return msg
 
     def send_command(self, command : str, *args):
         self._write(command, *args)
         response = self._read().split(self.__command_terminate)
         # response = "\r\nscn20 500000000 8\r\n0 2 3 4 69\r\ncomplete\r\n".split(self.__command_terminate)
-        try:
-            while True:
-                response.pop(response.index(''))
-        except ValueError:
-            pass
-        response = [resp.split(" ") for resp in response]
+        # try:
+        #     while True:
+        #         response.pop(response.index(''))
+        # except ValueError:
+        #     pass
+        # response = [resp.split(" ") for resp in response]
         return response
 
     def on(self) -> bool:
@@ -73,10 +73,11 @@ class ArinstDevice:
                 command = ArinstCommand.SCAN_RANGE
             attenuation = (attenuation * 100) + 10000
             response = self.send_command(command, start, stop, step, 200, 20, 10700000, attenuation)
-            if len(response) == 3:
-                if response[-1][0] == "complete" and response[0][0] == command:
-                    return response[1]
-        return None
+            return response
+        #     if len(response) == 3:
+        #         if response[-1][0] == "complete" and response[0][0] == command:
+        #             return response[1]
+        # return None
 
 
 if __name__ == "__main__":
