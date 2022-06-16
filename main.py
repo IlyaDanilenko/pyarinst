@@ -23,7 +23,7 @@ class ArinstDevice:
         }
 
     def _write(self, command : str, *args):
-        msg = command + "".join([f' {arg}' for arg in args]) + " " + str(self.__package_index) + self.__command_terminate
+        msg = command + "".join([' ' + str(bytes(arg), encoding='ascii') for arg in args]) + " " + str(self.__package_index) + self.__command_terminate
         self.__serial.write(bytes(msg, 'ascii'))
         self.__package_index += 1
 
