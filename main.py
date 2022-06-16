@@ -51,7 +51,7 @@ class ArinstDevice:
         command = ArinstCommand.GENERATOR_SET_FREQUENCY
         response = self.send_command(command, frequency)
         if len(response) == 3:
-            return response[-1][0] == "complete" and response[0][0] == command and response[1][0]
+            return response[-1][0] == "complete" and response[0][0] == command and response[1][0] == "success"
         else:
             return False
         
