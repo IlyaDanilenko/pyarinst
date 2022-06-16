@@ -27,7 +27,8 @@ class ArinstDevice:
 
     def send_command(self, command : str, *args):
         self._write(command, *args)
-        response = self._read().split(self.__command_terminate)
+        response = self._read()
+        # response = response.split(self.__command_terminate)
         # response = "\r\nscn20 500000000 8\r\n0 2 3 4 69\r\ncomplete\r\n".split(self.__command_terminate)
         # try:
         #     while True:
