@@ -39,31 +39,30 @@ class ArinstDevice:
     def send_command(self, command : str, *args):
         self._write(command, *args)
         response = self._read(command)
-        # response = response.split(self.__command_terminate)
-        # response = "\r\nscn20 500000000 8\r\n0 2 3 4 69\r\ncomplete\r\n".split(self.__command_terminate)
-        # try:
-        #     while True:
-        #         response.pop(response.index(''))
-        # except ValueError:
-        #     pass
-        # response = [resp.split(" ") for resp in response]
+        response = response.split(bytes(self.__command_terminate, 'ascii'))
+        try:
+            while True:
+                response.pop(response.index(b''))
+        except ValueError:
+            pass
+        response = [resp.split(b' ') for resp in response]
         return response
 
     def on(self) -> bool:
         command = ArinstCommand.GENERATOR_ON
         response = self.send_command(command)
-        return response[-1][0] == "complete" and response[0][0] == command
+        return response[-1][0] == b"complete" and str(response[0][0], 'ascii') == command
 
     def off(self) -> bool:
         command = ArinstCommand.GENERATOR_OFF
         response = self.send_command(command)
-        return response[-1][0] == "complete" and response[0][0] == command
+        return response[-1][0] == b"complete" and str(response[0][0], 'ascii') == command
 
     def set_frequency(self, frequency : int) -> bool:
         command = ArinstCommand.GENERATOR_SET_FREQUENCY
         response = self.send_command(command, frequency)
         if len(response) == 3:
-            return response[-1][0] == "complete" and response[0][0] == command and response[1][0] == "success"
+            return response[-1][0] == b"complete" and str(response[0][0], 'ascii') == command and str(response[1][0], 'ascii') == "success"
         else:
             return False
         
@@ -72,9 +71,19 @@ class ArinstDevice:
             command = ArinstCommand.GENERATOR_SET_AMPLITUDE
             amplitude = ((amplitude + 15) * 100) + 10000
             response = self.send_command(command, amplitude)
-            return response[-1][0] == "complete" and response[0][0] == command
+            return response[-1][0] == b"complete" and str(response[0][0], 'ascii') == command
         else:
             return False
+
+    def __decode_data(self, response, attenuation):
+        amplitudes = []
+        for i in range(0, len(response), 2):
+            first = int.from_bytes(response[i:i + 1], byteorder='little')
+            second = int.from_bytes(response[i + 2:i + 3], byteorder='little')
+            val = first << 8 | second
+            data = val & 0b000011111111111
+            amplitudes.append((800.0 - data)/10.0 - attenuation)
+        return amplitudes
 
     def get_scan_range(self, start = 1500000000, stop = 1700000000, step = 1000000, attenuation = 0, tracking = False):
         if -30 <= attenuation <= 0:
@@ -85,14 +94,13 @@ class ArinstDevice:
                 command = ArinstCommand.SCAN_RANGE
             attenuation = (attenuation * 100) + 10000
             response = self.send_command(command, start, stop, step, 200, 20, 10700000, attenuation)
-            return response
-        #     if len(response) == 3:
-        #         if response[-1][0] == "complete" and response[0][0] == command:
-        #             return response[1]
-        # return None
+            if len(response) == 3:
+                if response[-1][0] == b"complete" and str(response[0][0], 'ascii') == command:
+                    return self.__decode_data(response[1][0][0:-2], attenuation)
+        return None
 
 
 if __name__ == "__main__":
     device = ArinstDevice()
     while True:
-        print(f'Scan data: {device.get_scan_range()}')
+        print(device.get_scan_range())
