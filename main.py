@@ -11,7 +11,7 @@ class ArinstCommand:
 class ArinstDevice:
     def __init__(self, device='/dev/ttyACM0', baudrate=115200):
         self.__serial = Serial(port = device, baudrate = baudrate)
-        self.__command_terminate = '\r\n'
+        self.__command_terminate = b'\r\n'
         self.__package_index = 0
         self.__command_count_terminate = {
             ArinstCommand.GENERATOR_ON: 2,
@@ -28,10 +28,12 @@ class ArinstDevice:
         self.__package_index += 1
 
     def _read(self, count_terminator : int) -> str:
-        msg = ''
-        for _ in range(count_terminator):
-            msg += self.__serial.read_until(self.__command_terminate)
-        return msg
+        while True:
+            print(self.__serial.read_all())
+        # msg = ''
+        # for _ in range(count_terminator):
+        #     msg += self.__serial.read_until(self.__command_terminate)
+        # return msg
 
     def send_command(self, command : str, *args):
         self._write(command, *args)
