@@ -9,7 +9,7 @@ class ArinstCommand:
     SCAN_RANGE_TRACKING = "scn22"
 
 class ArinstDevice:
-    def __init__(self, device='/dev/ttyUSB0', baudrate=115200):
+    def __init__(self, device='/dev/ttyACM0', baudrate=115200):
         self.__serial = Serial(port = device, baudrate = baudrate)
         self.__command_terminate = '\r\n'
         self.__package_index = 0
@@ -29,7 +29,7 @@ class ArinstDevice:
 
     def _read(self, count_terminator : int) -> str:
         msg = ''
-        for _ in count_terminator:
+        for _ in range(count_terminator):
             msg += self.__serial.read_until(self.__command_terminate)
         return msg
 
@@ -88,7 +88,7 @@ class ArinstDevice:
 
 
 if __name__ == "__main__":
-    device = ArinstDevice(device="/dev/ttyUSB0")
+    device = ArinstDevice()
     if device.on():
         print(f'Set amplitude: {device.set_amplitude(-25)}')
         print(f'Set freq: {device.set_frequency(1100000000)}')
