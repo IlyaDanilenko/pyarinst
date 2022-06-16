@@ -98,9 +98,3 @@ class ArinstDevice:
                 if response[-1][0] == b"complete" and str(response[0][0], 'ascii') == command:
                     return self.__decode_data(response[1][0][0:-2], attenuation)
         return None
-
-
-if __name__ == "__main__":
-    device = ArinstDevice()
-    while True:
-        print(device.get_scan_range())
