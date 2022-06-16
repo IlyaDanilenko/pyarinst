@@ -11,7 +11,7 @@ class ArinstCommand:
 class ArinstDevice:
     def __init__(self, device='/dev/ttyACM0', baudrate=115200):
         self.__serial = Serial(port = device, baudrate = baudrate)
-        self.__command_terminate = b'\r\n'
+        self.__command_terminate = '\r\n'
         self.__package_index = 0
         self.__command_count_terminate = {
             ArinstCommand.GENERATOR_ON: 2,
