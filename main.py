@@ -13,21 +13,32 @@ class ArinstDevice:
         self.__serial = Serial(port = device, baudrate = baudrate)
         self.__command_terminate = '\r\n'
         self.__package_index = 0
+        self.__command_count_terminate = {
+            ArinstCommand.GENERATOR_ON: 2,
+            ArinstCommand.GENERATOR_OFF: 2,
+            ArinstCommand.GENERATOR_SET_FREQUENCY: 3,
+            ArinstCommand.GENERATOR_SET_AMPLITUDE: 2,
+            ArinstCommand.SCAN_RANGE: 4,
+            ArinstCommand.SCAN_RANGE_TRACKING: 4
+        }
 
     def _write(self, command : str, *args):
         msg = command + "".join([f' {arg}' for arg in args]) + " " + str(self.__package_index) + self.__command_terminate
         self.__serial.write(bytes(msg, 'ascii'))
         self.__package_index += 1
 
-    def _read(self) -> str:
+    def _read(self, command : str) -> str:
         msg = b''
-        while msg == b'':
-            msg = self.__serial.read_all()
+        for _ in range(self.__command_count_terminate[command]):
+            msg += self.__serial.read_until(bytes(self.__command_terminate, 'ascii'))
+
+        self.__serial.reset_input_buffer()
+        self.__serial.reset_output_buffer()
         return msg
 
     def send_command(self, command : str, *args):
         self._write(command, *args)
-        response = self._read()
+        response = self._read(command)
         # response = response.split(self.__command_terminate)
         # response = "\r\nscn20 500000000 8\r\n0 2 3 4 69\r\ncomplete\r\n".split(self.__command_terminate)
         # try:
