@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='PyArinst',
+    name='pyarinst',
     version='1.0',
     description='Python SDK for Arinst devices',
     author='Ilya Danilenko',
