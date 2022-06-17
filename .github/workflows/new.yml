@@ -6,14 +6,9 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Python Package
+name: pyarinst
 
-on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
+on: [push]
 
 jobs:
   deploy:
