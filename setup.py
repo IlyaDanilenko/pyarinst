@@ -7,5 +7,5 @@ setup(
     author='Ilya Danilenko',
     author_email='ilya@eadsoft.com',
     packages=['pyarinst'],
-    install_requires=[line.strip() for line in open("requirements.txt").readlines()]
+    install_requires=['pyserial]
 )
