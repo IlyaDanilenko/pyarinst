@@ -67,7 +67,7 @@ class ArinstDevice:
             return False
         
     def set_amplitude(self, amplitude : int) -> bool:
-        if -15 <= amplitude <= -25:
+        if -25 <= amplitude <= -15:
             command = ArinstCommand.GENERATOR_SET_AMPLITUDE
             amplitude = ((amplitude + 15) * 100) + 10000
             response = self.send_command(command, amplitude)
@@ -81,7 +81,7 @@ class ArinstDevice:
             first = int.from_bytes(response[i:i + 1], byteorder='little')
             second = int.from_bytes(response[i + 2:i + 3], byteorder='little')
             val = first << 8 | second
-            data = val & 0b000011111111111
+            data = val & 0b0000011111111111
             amplitudes.append((800.0 - data)/10.0 - attenuation)
         return amplitudes
 
